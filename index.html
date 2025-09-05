@@ -2,8 +2,8 @@
 <html style="height: 100%; width: 100%">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <title>阳性溯源项目</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中国地图分期展示</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
     <style>
         body, html {
@@ -24,28 +24,26 @@
 <script>
 var chart = echarts.init(document.getElementById('main'));
 
+// 一期/二期省份名单
 var phase1 = ["湖北省", "云南省", "河北省", "北京市", "浙江省", "重庆市", "广东省", "广西壮族自治区"];
 var phase2 = ["吉林省", "黑龙江省", "山东省", "河南省", "福建省", "湖南省", "江西省", "安徽省", "贵州省"];
 
-var provinces = [
-    "北京市","天津市","上海市","重庆市","河北省","河南省","云南省","辽宁省","黑龙江省",
-    "湖南省","安徽省","山东省","新疆维吾尔自治区","江苏省","浙江省","江西省","湖北省","广西壮族自治区",
-    "甘肃省","山西省","内蒙古自治区","陕西省","吉林省","福建省","贵州省","广东省","青海省",
-    "西藏自治区","四川省","宁夏回族自治区","海南省","香港特别行政区","澳门特别行政区","台湾省"
-];
+// 所有省份（可选，根据完整 GeoJSON 自动显示）
+var provinces = phase1.concat(phase2);
 
+// 默认值 0
 var data = provinces.map(p => ({name: p, value: 0}));
-
 phase1.forEach(p => {
     var item = data.find(d => d.name === p);
-    if (item) item.value = 1;
+    if(item) item.value = 1;
 });
 phase2.forEach(p => {
     var item = data.find(d => d.name === p);
-    if (item) item.value = 2;
+    if(item) item.value = 2;
 });
 
-fetch("https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json")
+// 加载本地完整 GeoJSON
+fetch("assets/100000_full.json")  // 根据你放置的位置修改路径
     .then(res => res.json())
     .then(geoJson => {
         echarts.registerMap('china', geoJson);
@@ -61,53 +59,35 @@ fetch("https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json")
             visualMap: {
                 type: 'piecewise',
                 orient: 'horizontal',
-                bottom: 0,       // ✅ 紧贴底部
-                left: 'center',  // 居中
+                bottom: 0,
+                left: 'center',
                 pieces: [
                     {value: 1, label: '一期', color: '#ADD8E6'},
-                    {value: 2, label: '二期', color: '#5DADE2'}],
+                    {value: 2, label: '二期', color: '#5DADE2'},
+                    {value: 0, label: '其他', color: '#FFFFFF'}
+                ],
                 show: true,
-                textStyle: {
-                    fontSize: 12,
-                    color: '#000'
-                },
+                textStyle: { fontSize: 12, color: '#000' },
                 itemWidth: 18,
                 itemHeight: 12
             },
-            series: [
-                {
-                    name: '中国',
-                    type: 'map',
-                    map: 'china',
-                    roam: false,
-                    label: {
-                        show: true,
-                        fontSize: 8,
-                        color: '#000',
-                        fontWeight: 'bold'
-                    },
-                    itemStyle: {
-                        borderColor: '#666'
-                    },
-                    emphasis: {
-                        label: {
-                            show: true,
-                            color: '#000'
-                        },
-                        itemStyle: {
-                            areaColor: '#FFD700'
-                        }
-                    },
-                    data: data
-                }
-            ]
-        });
-
-        // 横竖屏切换时自动调整
-        window.addEventListener("resize", function() {
-            chart.resize();
+            series: [{
+                name: '中国',
+                type: 'map',
+                map: 'china',
+                roam: false,
+                label: { show: true, fontSize: 8, color: '#000', fontWeight: 'bold' },
+                itemStyle: { borderColor: '#666' },
+                emphasis: { label: {show: true, color: '#000'}, itemStyle: {areaColor: '#FFD700'} },
+                data: data
+            }]
         });
     });
+
+// 自适应窗口
+window.addEventListener("resize", function() {
+    chart.resize();
+});
 </script>
 </body>
 </html>
