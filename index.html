@@ -36,7 +36,7 @@ var provinces = phase1.concat(phase2);
 var data = provinces.map(p => ({name: p, value: 2}));
 
 // 加载本地完整 GeoJSON
-fetch("assets/100000_full.json")  // 根据你放置的位置修改路径
+fetch("assets/100000_full.json")
     .then(res => res.json())
     .then(geoJson => {
         echarts.registerMap('china', geoJson);
@@ -57,11 +57,11 @@ fetch("assets/100000_full.json")  // 根据你放置的位置修改路径
                 label: { show: true, fontSize: 8, color: '#000', fontWeight: 'bold' },
                 itemStyle: { 
                     borderColor: '#666', 
-                    color: '#5DADE2'  // 二期颜色
+                    color: '#5DADE2'  // 平常蓝色
                 },
                 emphasis: { 
                     label: { show: true, color: '#000' }, 
-                    itemStyle: { areaColor: '#5DADE2' } // 悬浮时颜色也为蓝色
+                    itemStyle: { areaColor: '#FFD700' } // 悬浮黄色
                 },
                 data: data
             }]
