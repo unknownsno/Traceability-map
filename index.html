@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>阳性溯源项目 - 蓝色统一显示</title>
+    <title>阳性溯源项目 - 指定省份蓝色显示</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
     <link rel="icon" type="image/png" href="assets/favicon.png">
     <style>
@@ -25,8 +25,15 @@
 <script>
 var chart = echarts.init(document.getElementById('main'));
 
+// 指定需要显示蓝色的省份
+var blueProvinces = [
+    "湖北省","云南省","河北省","北京市","浙江省","重庆市",
+    "广东省","广西壮族自治区","吉林省","黑龙江省","山东省",
+    "河南省","福建省","湖南省","江西省","安徽省","贵州省"
+];
+
 // 所有省份（可以根据完整 GeoJSON 自动显示，也可列出部分）
-var provinces = [
+var allProvinces = [
     "北京市","天津市","河北省","山西省","内蒙古自治区",
     "辽宁省","吉林省","黑龙江省","上海市","江苏省",
     "浙江省","安徽省","福建省","江西省","山东省",
@@ -36,10 +43,12 @@ var provinces = [
     "新疆维吾尔自治区","香港特别行政区","澳门特别行政区","台湾省"
 ];
 
-// 所有省份数据（统一显示蓝色）
-var data = provinces.map(p => ({name: p}));
+// 构造数据
+var data = allProvinces.map(p => ({
+    name: p,
+    value: blueProvinces.includes(p) ? 1 : 0 // 蓝色标记为1，其它标记为0
+}));
 
-// 加载本地完整 GeoJSON
 fetch("assets/100000_full.json")
     .then(res => res.json())
     .then(geoJson => {
@@ -52,22 +61,26 @@ fetch("assets/100000_full.json")
                     return params.name;
                 }
             },
-            visualMap: { show: false },  // 隐藏图例
+            visualMap: { show: false },  // 不显示图例
             series: [{
                 name: '中国',
                 type: 'map',
                 map: 'china',
                 roam: false,
                 label: { show: true, fontSize: 8, color: '#000', fontWeight: 'bold' },
-                itemStyle: { 
-                    borderColor: '#666', 
-                    color: '#5DADE2'  // 平常蓝色
-                },
+                itemStyle: { borderColor: '#666' },
                 emphasis: { 
                     label: { show: true, color: '#000' }, 
                     itemStyle: { areaColor: '#FFD700' } // 悬浮黄色
                 },
-                data: data
+                data: data,
+                // 根据 value 设置颜色
+                itemStyle: {
+                    borderColor: '#666',
+                    color: function(params) {
+                        return params.value === 1 ? '#5DADE2' : '#F0F0F0'; // 蓝色或灰色
+                    }
+                }
             }]
         });
     });
